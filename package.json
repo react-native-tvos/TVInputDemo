@@ -1,0 +1,52 @@
+{
+  "name": "tvinputdemo",
+  "version": "1.0.0",
+  "dependencies": {
+    "@react-navigation/native": "^6.1.10",
+    "@react-navigation/native-stack": "^6.9.18",
+    "@react-navigation/stack": "^6.3.21",
+    "expo": "^50.0.6",
+    "expo-av": "~13.10.5",
+    "expo-build-properties": "~0.11.1",
+    "expo-splash-screen": "~0.26.3",
+    "expo-status-bar": "~1.11.1",
+    "expo-system-ui": "~2.9.3",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-native": "npm:react-native-tvos@^0.73.4-0",
+    "react-native-gesture-handler": "~2.14.0",
+    "react-native-paper": "4.12.1",
+    "react-native-reanimated": "3.7.1",
+    "react-native-safe-area-context": "4.8.2",
+    "react-native-screens": "~3.29.0",
+    "react-native-vector-icons": "^10.0.3"
+  },
+  "devDependencies": {
+    "@babel/core": "~7.20.0",
+    "@react-native-tvos/config-tv": "^0.0.6",
+    "@types/react": "~18.2.14",
+    "eslint": "^8.56.0",
+    "expo-module-scripts": "^3.4.1",
+    "patch-package": "^8.0.0",
+    "postinstall-postinstall": "^2.1.0",
+    "prettier": "^3.2.5",
+    "typescript": "^5.3.0"
+  },
+  "expo": {
+    "install": {
+      "exclude": [
+        "react-native",
+        "react-native-reanimated"
+      ]
+    }
+  },
+  "private": true,
+  "scripts": {
+    "postinstall": "patch-package",
+    "lint": "eslint App.tsx src",
+    "start": "expo start",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "web": "expo start --web"
+  }
+}
