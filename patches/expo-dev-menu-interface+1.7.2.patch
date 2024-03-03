@@ -1,0 +1,23 @@
+diff --git a/node_modules/expo-dev-menu-interface/expo-module.config.json b/node_modules/expo-dev-menu-interface/expo-module.config.json
+index 1356142..6d418ff 100644
+--- a/node_modules/expo-dev-menu-interface/expo-module.config.json
++++ b/node_modules/expo-dev-menu-interface/expo-module.config.json
+@@ -1,4 +1,4 @@
+ {
+   "name": "expo-dev-menu-interface",
+-  "platforms": ["ios", "android"]
++  "platforms": ["ios", "tvos", "android"]
+ }
+diff --git a/node_modules/expo-dev-menu-interface/ios/expo-dev-menu-interface.podspec b/node_modules/expo-dev-menu-interface/ios/expo-dev-menu-interface.podspec
+index cfe12d5..8c364d4 100644
+--- a/node_modules/expo-dev-menu-interface/ios/expo-dev-menu-interface.podspec
++++ b/node_modules/expo-dev-menu-interface/ios/expo-dev-menu-interface.podspec
+@@ -10,7 +10,7 @@ Pod::Spec.new do |s|
+   s.license        = package['license']
+   s.author         = package['author']
+   s.homepage       = package['homepage']
+-  s.platform       = :ios, '13.4'
++  s.platforms      = { :ios => '13.4', :tvos => '13.4' }
+   s.swift_version  = '5.2'
+   s.source         = { git: 'https://github.com/expo/expo.git' }
+   s.static_framework = true

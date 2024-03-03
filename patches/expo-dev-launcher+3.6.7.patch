@@ -1,0 +1,151 @@
+diff --git a/node_modules/expo-dev-launcher/expo-dev-launcher.podspec b/node_modules/expo-dev-launcher/expo-dev-launcher.podspec
+index 3da0499..0c26ff6 100644
+--- a/node_modules/expo-dev-launcher/expo-dev-launcher.podspec
++++ b/node_modules/expo-dev-launcher/expo-dev-launcher.podspec
+@@ -10,7 +10,7 @@ Pod::Spec.new do |s|
+   s.license        = package['license']
+   s.author         = package['author']
+   s.homepage       = package['homepage']
+-  s.platform       = :ios, '13.4'
++  s.platforms      = { :ios => '13.4', :tvos => '13.4' }
+   s.swift_version  = '5.2'
+   s.source         = { :git => 'https://github.com/github_account/expo-development-client.git', :tag => "#{s.version}" }
+   s.static_framework = true
+diff --git a/node_modules/expo-dev-launcher/expo-module.config.json b/node_modules/expo-dev-launcher/expo-module.config.json
+index de3bcd6..a6e416c 100644
+--- a/node_modules/expo-dev-launcher/expo-module.config.json
++++ b/node_modules/expo-dev-launcher/expo-module.config.json
+@@ -1,6 +1,6 @@
+ {
+   "name": "expo-dev-launcher",
+-  "platforms": ["ios", "android"],
++  "platforms": ["ios", "tvos", "android"],
+   "ios": {
+     "podspecPath": "expo-dev-launcher.podspec",
+     "swiftModuleName": "EXDevLauncher",
+diff --git a/node_modules/expo-dev-launcher/ios/DevLauncherAuth.swift b/node_modules/expo-dev-launcher/ios/DevLauncherAuth.swift
+index 18414df..7b4d1eb 100644
+--- a/node_modules/expo-dev-launcher/ios/DevLauncherAuth.swift
++++ b/node_modules/expo-dev-launcher/ios/DevLauncherAuth.swift
+@@ -1,11 +1,37 @@
+ // Copyright 2015-present 650 Industries. All rights reserved.
+ 
+ import ExpoModulesCore
++#if canImport(SafariServices)
+ import SafariServices
++#endif
+ import React
+ 
+ private let DEV_LAUNCHER_DEFAULT_SCHEME = "expo-dev-launcher"
+ 
++#if os(tvOS)
++
++public class DevLauncherAuth: Module {
++  public func definition() -> ModuleDefinition {
++    Name("ExpoDevLauncherAuth")
++    AsyncFunction("openAuthSessionAsync") { (authURL: URL, redirectURL: String, promise: Promise) in
++      throw Exception()
++    }
++    AsyncFunction("getAuthSchemeAsync") { () -> String in
++      return DEV_LAUNCHER_DEFAULT_SCHEME
++    }
++    AsyncFunction("setSessionAsync") { (session: String?) in
++      UserDefaults.standard.set(session, forKey: "expo-session-secret")
++    }
++
++    AsyncFunction("restoreSessionAsync") {
++      return UserDefaults.standard.string(forKey: "expo-session-secret")
++    }
++
++  }
++}
++
++#else
++
+ public class DevLauncherAuth: Module {
+   private var redirectPromise: Promise?
+   private var authSession: SFAuthenticationSession?
+@@ -71,3 +97,5 @@ public class DevLauncherAuth: Module {
+     self.redirectPromise = nil
+   }
+ }
++
++#endif
+diff --git a/node_modules/expo-dev-launcher/ios/EXDevLauncherController.m b/node_modules/expo-dev-launcher/ios/EXDevLauncherController.m
+index 8e86337..c7d3a1b 100644
+--- a/node_modules/expo-dev-launcher/ios/EXDevLauncherController.m
++++ b/node_modules/expo-dev-launcher/ios/EXDevLauncherController.m
+@@ -537,7 +537,9 @@
+   self.manifest = manifest;
+   self.manifestURL = appUrl;
+   _possibleManifestURL = nil;
++#if !TARGET_OS_TV
+   __block UIInterfaceOrientation orientation = [EXDevLauncherManifestHelper exportManifestOrientation:manifest.orientation];
++#endif
+   __block UIColor *backgroundColor = [EXDevLauncherManifestHelper hexStringToColor:manifest.iosOrRootBackgroundColor];
+ 
+   __weak __typeof(self) weakSelf = self;
+@@ -554,7 +556,7 @@
+     [[RCTPackagerConnection sharedPackagerConnection] setSocketConnectionURL:bundleUrl];
+ #endif
+ 
+-    if (@available(iOS 12, *)) {
++    if (@available(iOS 12, tvOS 12, *)) {
+       UIUserInterfaceStyle userInterfaceStyle = [EXDevLauncherManifestHelper exportManifestUserInterfaceStyle:manifest.userInterfaceStyle];
+       [self _applyUserInterfaceStyle:userInterfaceStyle];
+ 
+@@ -562,7 +564,7 @@
+       // RNC appearance checks the global trait collection and doesn't have another way to override the user interface.
+       // So we swap `currentTraitCollection` with one from the root view controller.
+       // Note that the root view controller will have the correct value of `userInterfaceStyle`.
+-      if (@available(iOS 13.0, *)) {
++      if (@available(iOS 13.0, tvOS 13.0, *)) {
+         if (userInterfaceStyle != UIUserInterfaceStyleUnspecified) {
+           UITraitCollection.currentTraitCollection = [self.window.rootViewController.traitCollection copy];
+         }
+@@ -723,8 +725,10 @@
+ }
+ 
+ -(void)copyToClipboard:(NSString *)content {
++#if !TARGET_OS_TV
+   UIPasteboard *clipboard = [UIPasteboard generalPasteboard];
+   clipboard.string = (content ? : @"");
++#endif
+ }
+ 
+ - (void)setDevMenuAppBridge
+diff --git a/node_modules/expo-dev-launcher/ios/Manifest/EXDevLauncherManifestHelper.swift b/node_modules/expo-dev-launcher/ios/Manifest/EXDevLauncherManifestHelper.swift
+index 23273ea..a97e667 100644
+--- a/node_modules/expo-dev-launcher/ios/Manifest/EXDevLauncherManifestHelper.swift
++++ b/node_modules/expo-dev-launcher/ios/Manifest/EXDevLauncherManifestHelper.swift
+@@ -4,6 +4,7 @@ import UIKit
+ 
+ @objc
+ public class EXDevLauncherManifestHelper: NSObject {
++  #if !os(tvOS)
+   private static func defaultOrientationForOrientationMask(_ orientationMask: UIInterfaceOrientationMask) -> UIInterfaceOrientation {
+     if orientationMask.contains(.all) {
+       return UIInterfaceOrientation.unknown
+@@ -31,6 +32,7 @@ public class EXDevLauncherManifestHelper: NSObject {
+ 
+     return defaultOrientationForOrientationMask(orientationMask)
+   }
++#endif
+ 
+   @objc
+   public static func hexStringToColor(_ hexString: String?) -> UIColor? {
+diff --git a/node_modules/expo-dev-launcher/ios/Views/EXDevLauncherErrorView.storyboard b/node_modules/expo-dev-launcher/ios/Views/EXDevLauncherErrorView.storyboard
+index f584cd7..297a10e 100644
+--- a/node_modules/expo-dev-launcher/ios/Views/EXDevLauncherErrorView.storyboard
++++ b/node_modules/expo-dev-launcher/ios/Views/EXDevLauncherErrorView.storyboard
+@@ -1,8 +1,8 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="22505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
++<document type="com.apple.InterfaceBuilder.AppleTV.Storyboard" version="3.0" toolsVersion="22505" targetRuntime="AppleTV" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+     <device id="retina5_9" orientation="portrait" appearance="light"/>
+     <dependencies>
+-        <deployment identifier="iOS"/>
++        <deployment identifier="tvOS"/>
+         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22504"/>
+         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+         <capability name="System colors in document resources" minToolsVersion="11.0"/>

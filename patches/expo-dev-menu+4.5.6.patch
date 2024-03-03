@@ -1,0 +1,142 @@
+diff --git a/node_modules/expo-dev-menu/expo-dev-menu.podspec b/node_modules/expo-dev-menu/expo-dev-menu.podspec
+index 766415d..aca3a38 100644
+--- a/node_modules/expo-dev-menu/expo-dev-menu.podspec
++++ b/node_modules/expo-dev-menu/expo-dev-menu.podspec
+@@ -21,7 +21,7 @@ Pod::Spec.new do |s|
+   s.license        = package['license']
+   s.author         = package['author']
+   s.homepage       = package['homepage']
+-  s.platform       = :ios, '13.4'
++  s.platforms      = { :ios => '13.4', :tvos => '13.4' }
+   s.swift_version  = '5.2'
+   s.source         = { git: 'https://github.com/expo/expo.git' }
+   s.static_framework = true
+diff --git a/node_modules/expo-dev-menu/expo-module.config.json b/node_modules/expo-dev-menu/expo-module.config.json
+index fcf0d3f..083c952 100644
+--- a/node_modules/expo-dev-menu/expo-module.config.json
++++ b/node_modules/expo-dev-menu/expo-module.config.json
+@@ -1,6 +1,6 @@
+ {
+   "name": "expo-dev-menu",
+-  "platforms": ["ios", "android"],
++  "platforms": ["ios", "tvos", "android"],
+   "ios": {
+     "podspecPath": "expo-dev-menu.podspec",
+     "swiftModuleName": "EXDevMenu",
+diff --git a/node_modules/expo-dev-menu/ios/DevMenuGestureRecognizer.swift b/node_modules/expo-dev-menu/ios/DevMenuGestureRecognizer.swift
+index a28cb65..7c54b05 100644
+--- a/node_modules/expo-dev-menu/ios/DevMenuGestureRecognizer.swift
++++ b/node_modules/expo-dev-menu/ios/DevMenuGestureRecognizer.swift
+@@ -8,6 +8,7 @@ class DevMenuGestureRecognizerDelegate {
+   */
+   @objc
+   public func handleLongPress(_ gestureReconizer: UILongPressGestureRecognizer) {
++    #if !os(tvOS)
+     if gestureReconizer.state == UIGestureRecognizer.State.began {
+       if DevMenuManager.shared.toggleMenu() {
+         let feedback = UIImpactFeedbackGenerator(style: .light)
+@@ -16,6 +17,7 @@ class DevMenuGestureRecognizerDelegate {
+       }
+       cancelGesture(gestureReconizer)
+     }
++    #endif
+   }
+ 
+   /**
+@@ -32,9 +34,11 @@ class DevMenuGestureRecognizer: UILongPressGestureRecognizer {
+ 
+   init() {
+     super.init(target: DevMenuGestureRecognizer.gestureDelegate, action: #selector(DevMenuGestureRecognizer.gestureDelegate.handleLongPress(_:)))
++    #if !os(tvOS)
+ 
+     numberOfTouchesRequired = 3
+     minimumPressDuration = 0.5
+     allowableMovement = 30
++    #endif
+   }
+ }
+diff --git a/node_modules/expo-dev-menu/ios/DevMenuViewController.swift b/node_modules/expo-dev-menu/ios/DevMenuViewController.swift
+index c5e7494..a2ed822 100644
+--- a/node_modules/expo-dev-menu/ios/DevMenuViewController.swift
++++ b/node_modules/expo-dev-menu/ios/DevMenuViewController.swift
+@@ -44,11 +44,13 @@ class DevMenuViewController: UIViewController {
+     reactRootView?.becomeFirstResponder()
+   }
+ 
++  #if !os(tvOS)
+   override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
+     get {
+       return UIInterfaceOrientationMask.all
+     }
+   }
++  #endif
+ 
+   @available(iOS 12.0, *)
+   override var overrideUserInterfaceStyle: UIUserInterfaceStyle {
+diff --git a/node_modules/expo-dev-menu/ios/DevMenuWindow.swift b/node_modules/expo-dev-menu/ios/DevMenuWindow.swift
+index 68b4f8d..6d327ed 100644
+--- a/node_modules/expo-dev-menu/ios/DevMenuWindow.swift
++++ b/node_modules/expo-dev-menu/ios/DevMenuWindow.swift
+@@ -37,7 +37,11 @@ class DevMenuWindow: UIWindow, OverlayContainerViewControllerDelegate {
+     self.rootViewController = bottomSheetController
+     self.backgroundColor = UIColor(white: 0, alpha: 0.4)
+     self.bounds = UIScreen.main.bounds
++    #if os(tvOS)
++    self.windowLevel = .normal
++    #else
+     self.windowLevel = .statusBar
++    #endif
+     self.isHidden = true
+   }
+ 
+diff --git a/node_modules/expo-dev-menu/ios/Modules/DevMenuInternalModule.swift b/node_modules/expo-dev-menu/ios/Modules/DevMenuInternalModule.swift
+index 8d221b4..b2e9612 100644
+--- a/node_modules/expo-dev-menu/ios/Modules/DevMenuInternalModule.swift
++++ b/node_modules/expo-dev-menu/ios/Modules/DevMenuInternalModule.swift
+@@ -1,7 +1,9 @@
+ // Copyright 2015-present 650 Industries. All rights reserved.
+ 
+ import ExpoModulesCore
++#if canImport(SafariServices)
+ import SafariServices
++#endif
+ import React
+ 
+ public class DevMenuInternalModule: Module {
+@@ -79,8 +81,10 @@ public class DevMenuInternalModule: Module {
+     }
+ 
+     AsyncFunction("copyToClipboardAsync") { (content: String) in
++      #if !os(tvOS)
+       let clipboard = UIPasteboard.general
+       clipboard.string = content as String
++      #endif
+     }
+   }
+ }
+diff --git a/node_modules/expo-dev-menu/ios/OverlayContainer/OverlayContainerViewController.swift b/node_modules/expo-dev-menu/ios/OverlayContainer/OverlayContainerViewController.swift
+index ac40951..53ec247 100644
+--- a/node_modules/expo-dev-menu/ios/OverlayContainer/OverlayContainerViewController.swift
++++ b/node_modules/expo-dev-menu/ios/OverlayContainer/OverlayContainerViewController.swift
+@@ -48,7 +48,9 @@ open class OverlayContainerViewController: UIViewController {
+             guard isViewLoaded else { return }
+             oldValue.forEach { removeChild($0) }
+             loadOverlayViews()
++          #if !os(tvOS)
+             setNeedsStatusBarAppearanceUpdate()
++          #endif
+         }
+     }
+ 
+@@ -57,9 +59,11 @@ open class OverlayContainerViewController: UIViewController {
+         return viewControllers.last
+     }
+ 
++  #if !os(tvOS)
+     open override var childForStatusBarStyle: UIViewController? {
+         return topViewController
+     }
++  #endif
+ 
+     /// The scroll view managing the overlay translation.
+     weak open var drivingScrollView: UIScrollView? {

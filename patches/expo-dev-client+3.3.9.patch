@@ -1,0 +1,23 @@
+diff --git a/node_modules/expo-dev-client/expo-module.config.json b/node_modules/expo-dev-client/expo-module.config.json
+index 2b93c4e..0f931b2 100644
+--- a/node_modules/expo-dev-client/expo-module.config.json
++++ b/node_modules/expo-dev-client/expo-module.config.json
+@@ -1,4 +1,4 @@
+ {
+   "name": "expo-dev-client",
+-  "platforms": ["ios", "android"]
++  "platforms": ["ios", "tvos", "android"]
+ }
+diff --git a/node_modules/expo-dev-client/ios/expo-dev-client.podspec b/node_modules/expo-dev-client/ios/expo-dev-client.podspec
+index 9b2223c..e2d9bce 100644
+--- a/node_modules/expo-dev-client/ios/expo-dev-client.podspec
++++ b/node_modules/expo-dev-client/ios/expo-dev-client.podspec
+@@ -10,7 +10,7 @@ Pod::Spec.new do |s|
+   s.license        = package['license']
+   s.author         = package['author']
+   s.homepage       = package['homepage']
+-  s.platform       = :ios, '11.0'
++  s.platforms      = { :ios => '13.4', :tvos => '13.4' }
+   s.source         = { git: 'https://github.com/expo/expo.git' }
+   s.static_framework = true
+   s.header_dir     = 'EXDevClient'
