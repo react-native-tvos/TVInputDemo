@@ -89,6 +89,28 @@ index 68b4f8d..6d327ed 100644
      self.isHidden = true
    }
  
+diff --git a/node_modules/expo-dev-menu/ios/EXDevMenuAppInfo.m b/node_modules/expo-dev-menu/ios/EXDevMenuAppInfo.m
+index 05e103d..00adb45 100644
+--- a/node_modules/expo-dev-menu/ios/EXDevMenuAppInfo.m
++++ b/node_modules/expo-dev-menu/ios/EXDevMenuAppInfo.m
+@@ -53,6 +53,9 @@
+ 
+ +(NSString *)getAppIcon
+ {
++#if TARGET_OS_TV
++  return @"";
++#else
+   NSString *appIcon = @"";
+   NSString *appIconName = [[[[[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleIcons"] objectForKey:@"CFBundlePrimaryIcon"] objectForKey:@"CFBundleIconFiles"]  lastObject];
+ 
+@@ -63,6 +66,7 @@
+   }
+ 
+   return appIcon;
++#endif
+ }
+ 
+ +(NSString *)getUpdatesConfigForKey:(NSString *)key
 diff --git a/node_modules/expo-dev-menu/ios/Modules/DevMenuInternalModule.swift b/node_modules/expo-dev-menu/ios/Modules/DevMenuInternalModule.swift
 index 8d221b4..b2e9612 100644
 --- a/node_modules/expo-dev-menu/ios/Modules/DevMenuInternalModule.swift
