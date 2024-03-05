@@ -16,6 +16,14 @@
         }
       ],
       [
+        "expo-dev-launcher",
+        {
+          "ios": {
+            "launchModeExperimental": "launcher"
+          }
+        }
+      ],
+      [
         "expo-build-properties",
         {
           "ios": {
@@ -31,10 +39,12 @@
     "name": "TVInputDemo",
     "slug": "TVInputDemo",
     "android": {
-      "userInterfaceStyle": "automatic"
+      "userInterfaceStyle": "automatic",
+      "package": "com.douglowderexpo.TVInputDemo"
     },
     "ios": {
-      "userInterfaceStyle": "automatic"
+      "userInterfaceStyle": "automatic",
+      "bundleIdentifier": "com.douglowderexpo.TVInputDemo"
     }
   }
 }
