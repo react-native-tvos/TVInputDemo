@@ -1291,6 +1291,19 @@ index 0000000..91f4c68
 +__r(131);
 +__r(0);
 \ No newline at end of file
+diff --git a/node_modules/expo-dev-launcher/android/src/debug/java/expo/modules/devlauncher/launcher/DevLauncherClientHost.kt b/node_modules/expo-dev-launcher/android/src/debug/java/expo/modules/devlauncher/launcher/DevLauncherClientHost.kt
+index e7a2074..5d217f2 100644
+--- a/node_modules/expo-dev-launcher/android/src/debug/java/expo/modules/devlauncher/launcher/DevLauncherClientHost.kt
++++ b/node_modules/expo-dev-launcher/android/src/debug/java/expo/modules/devlauncher/launcher/DevLauncherClientHost.kt
+@@ -70,7 +70,7 @@ class DevLauncherClientHost(
+ 
+   override fun getJSMainModuleName() = "index"
+ 
+-  override fun getBundleAssetName() = "expo_dev_launcher_android.bundle"
++  override fun getBundleAssetName() = "expo_dev_launcher_android_tv.bundle"
+ 
+   override fun getReactPackageTurboModuleManagerDelegateBuilder(): ReactPackageTurboModuleManagerDelegate.Builder? {
+     if (!ReactFeatureFlags.useTurboModules) {
 diff --git a/node_modules/expo-dev-launcher/expo-dev-launcher.podspec b/node_modules/expo-dev-launcher/expo-dev-launcher.podspec
 index 3da0499..bf3312b 100644
 --- a/node_modules/expo-dev-launcher/expo-dev-launcher.podspec
