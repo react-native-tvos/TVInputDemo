@@ -39,7 +39,13 @@
         "EXPO_TV": "1"
       }
     },
-    "production": {}
+    "production": {},
+    "production_tv": {
+      "extends": "production", 
+      "env": {
+        "EXPO_TV": "1"
+      }
+    }
   },
   "submit": {
     "production": {}

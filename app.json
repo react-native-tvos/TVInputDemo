@@ -20,11 +20,10 @@
         "expo-build-properties",
         {
           "ios": {
-            "newArchEnabled": false,
-            "flipper": false
+            "newArchEnabled": true
           },
           "android": {
-            "newArchEnabled": false
+            "newArchEnabled": true
           }
         }
       ]

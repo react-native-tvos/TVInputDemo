@@ -29,28 +29,22 @@ This project uses the Expo SDK, as described in the Expo guide ["Build Expo apps
 
 ```bash
 yarn
-export EXPO_TV=1
-npx expo prebuild --clean
-yarn ios # for Apple TV
-yarn android # for Android TV, a TV emulator should already be running
+yarn prebuild # Clean and generate native projects
+yarn ios # Start app in simulator for Apple TV
+yarn android # Start app for Android TV, a TV emulator should already be running
 ```
 
-### Enabling Fabric
+### Fabric (bridgeless) enabled by default
 
-- In `app.json`, set `newArchEnabled` to `true` in the `expo-build-properties` plugin
-- Then redo the above steps:
+- In `app.json`, `newArchEnabled` is set to `true` for both platforms in the `expo-build-properties` plugin properties
+- To run the app without Fabric:
+  - Change the value of `newArchEnabled` to false
+  - Rerun `yarn prebuild` to regenerate the native files
 
-```bash
-export EXPO_TV=1
-npx expo prebuild --clean
-yarn ios # for Apple TV
-yarn android # for Android TV, a TV emulator should already be running
-```
 
 ### Known issues
 
 - Apple TV simulator issues (these will not occur when building for real devices, and seem to be actual bugs in the simulator):
-  - You will need a tvOS 15.x simulator to test video (tvos 16 and 17 simulators won't play the video)
   - Video will pause after a few seconds if full screen video is selected in the video example
 
 ### Apple TV screenshots (light theme)
