@@ -128,7 +128,7 @@ const PlainTextInput = (props: React.ComponentProps<any>) => {
 // Text input with a touchable wrapper to manage focus on TV
 const WrappedTextInput = (props: React.ComponentProps<any>) => {
   const {styles} = useTVTheme();
-  const textInputRef = React.useRef<any>();
+  const textInputRef = React.useRef<any>(null);
   return (
     <TouchableOpacity
       style={styles.container}
