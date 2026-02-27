@@ -19,16 +19,14 @@ import {
 import {useTVTheme} from './TVTheme';
 
 // Button used in the demos
-const Button = React.forwardRef(
-  (props: React.ComponentPropsWithoutRef<typeof PaperButton>, ref: any) => {
-    const {styles} = useTVTheme();
-    return (
-      <PaperButton {...props} ref={ref} style={styles.button} uppercase={false}>
-        {props.children}
-      </PaperButton>
-    );
-  },
-);
+const Button = (props: any) => {
+  const {styles} = useTVTheme();
+  return (
+    <PaperButton {...props} style={styles.button} uppercase={false}>
+      {props.children}
+    </PaperButton>
+  );
+};
 
 // Progress bar
 const ProgressBar = (props: any) => {
@@ -63,14 +61,14 @@ const ProgressBar = (props: any) => {
 };
 
 // Pressable used in the demos
-const Pressable = React.forwardRef((props: any, ref: any) => {
+const Pressable = (props: any) => {
   const {styles, colors} = useTVTheme();
   const label = props.label;
   const pressableStyle = (pressed: boolean, focused: boolean) => [
     styles.button,
     {
       color: colors.primary,
-      backgroundColor: pressed || focused ? colors.accent : 'transparent',
+      backgroundColor: pressed || focused ? colors.outline : 'transparent',
       borderRadius: 8,
     },
   ];
@@ -82,7 +80,6 @@ const Pressable = React.forwardRef((props: any, ref: any) => {
     <NativePressable
       {...props}
       hasTVPreferredFocus={props.hasTVPreferredFocus}
-      ref={ref}
       style={({pressed, focused}) => pressableStyle(pressed, focused)}>
       {({pressed, focused}) => {
         return (
@@ -93,24 +90,19 @@ const Pressable = React.forwardRef((props: any, ref: any) => {
       }}
     </NativePressable>
   );
-});
+};
 
 // Back button used on every screen
-const BackButton = React.forwardRef(
-  (props: React.ComponentPropsWithoutRef<typeof PaperButton>, ref: any) => {
-    const {styles} = useTVTheme();
-    return (
-      <Button
-        {...props}
-        ref={ref}
-        mode="contained"
-        style={styles.button}
-        uppercase={false}>
-        {props.children}
-      </Button>
-    );
-  },
-);
+const BackButton = (
+  props: React.ComponentPropsWithoutRef<typeof PaperButton>,
+) => {
+  const {styles} = useTVTheme();
+  return (
+    <Button {...props} mode="contained" style={styles.button} uppercase={false}>
+      {props.children}
+    </Button>
+  );
+};
 
 // Text input without a touchable wrapper
 const PlainTextInput = (props: React.ComponentProps<any>) => {

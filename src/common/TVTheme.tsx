@@ -8,7 +8,7 @@
 import React from 'react';
 import {useColorScheme, Platform, StyleSheet} from 'react-native';
 import type {ViewStyle, TextStyle} from 'react-native';
-import {DarkTheme, DefaultTheme} from 'react-native-paper';
+import {MD3DarkTheme as DarkTheme, DefaultTheme} from 'react-native-paper';
 type Theme = typeof DefaultTheme;
 
 // Add styles to the theme type
@@ -27,19 +27,19 @@ const fontSize =
 const fontConfig = (theme: typeof DefaultTheme) => {
   return {
     regular: {
-      ...theme.fonts.regular,
+      ...theme.fonts.default,
       fontSize,
     },
     medium: {
-      ...theme.fonts.medium,
+      ...theme.fonts.default,
       fontSize,
     },
     light: {
-      ...theme.fonts.light,
+      ...theme.fonts.default,
       fontSize,
     },
     thin: {
-      ...theme.fonts.thin,
+      ...theme.fonts.default,
       fontSize,
     },
   };
@@ -142,10 +142,10 @@ const tvTheme = (dark: boolean): TVTheme => {
     colors: {
       ...baseTheme.colors,
       primary: dark ? '#ccccff' : '#0000ff',
-      accent: dark ? '#0000ff' : '#ccccff',
-      notification: dark ? '#330000' : '#ffcccc',
+      outline: dark ? '#0000ff' : '#ccccff',
+      // notification: dark ? '#330000' : '#ffcccc',
     },
-    fonts: fontConfig(baseTheme),
+    fonts: fontConfig(baseTheme) as any,
     sizes,
     styles: styleConfig(baseTheme),
   };

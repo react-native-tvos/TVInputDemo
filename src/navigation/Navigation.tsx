@@ -178,7 +178,7 @@ const Header = (props: {
   );
 };
 const Navigation = (): any => {
-  const {colors, dark} = useTVTheme();
+  const {colors, dark, fonts} = useTVTheme();
 
   const homeHeaderOptions: StackNavigationOptions = {
     headerShown: true,
@@ -190,11 +190,12 @@ const Navigation = (): any => {
 
   const navigationTheme = {
     dark,
+    fonts: fonts as any,
     colors: {
       primary: colors.primary,
       background: colors.background,
       card: colors.backdrop,
-      text: colors.text,
+      text: colors.primary,
       border: colors.surface,
       notification: colors.error,
     },

@@ -85,8 +85,7 @@ const VideoExample = ({navigation}: {navigation: any}) => {
           <Button onPress={() => (player.volume = 0.0)}>No volume</Button>
           <Button onPress={() => (player.volume = 0.5)}>Half volume</Button>
           <Button onPress={() => (player.volume = 1.0)}>Full volume</Button>
-          <Button
-            onPress={() => videoViewRef.current?.enterFullscreen()}>
+          <Button onPress={() => videoViewRef.current?.enterFullscreen()}>
             Full screen
           </Button>
         </View>
