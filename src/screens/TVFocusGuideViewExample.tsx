@@ -16,10 +16,10 @@ import {useTVTheme} from '../common/TVTheme';
 
 const TVFocusGuideViewExample = () => {
   const {colors} = useTVTheme();
-  const button1Ref = React.useRef(null);
-  const button2Ref = React.useRef(null);
-  const button3Ref = React.useRef(null);
-  const button4Ref = React.useRef(null);
+  const button1Ref = React.useRef();
+  const button2Ref = React.useRef();
+  const button3Ref = React.useRef();
+  const button4Ref = React.useRef();
 
   const [focusGuidesAdded, setFocusGuidesAdded] = React.useState(false);
   const [focusGuidesVisible, setFocusGuidesVisible] = React.useState(false);
@@ -41,12 +41,12 @@ const TVFocusGuideViewExample = () => {
     outerFocusGuideVisible: {
       flexDirection: 'row',
       minWidth: focusGuideWidth,
-      backgroundColor: colors.inverseSurface,
+      backgroundColor: colors.notification,
     },
     innerFocusGuideVisible: {
       flexDirection: 'row',
       minWidth: focusGuideWidth,
-      backgroundColor: colors.outline,
+      backgroundColor: colors.accent,
     },
     focusGuideHidden: {
       flexDirection: 'row',
