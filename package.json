@@ -4,7 +4,6 @@
   "dependencies": {
     "@react-navigation/native": "^7.1.31",
     "@react-navigation/native-stack": "^7.14.2",
-    "@react-navigation/stack": "^7.8.2",
     "expo": "^55.0.3",
     "expo-build-properties": "~55.0.9",
     "expo-splash-screen": "~55.0.9",
@@ -40,7 +39,7 @@
   "scripts": {
     "postinstall": "patch-package",
     "prebuild": "EXPO_TV=1 expo prebuild --clean",
-    "start:": "EXPO_TV=1 expo start",
+    "start": "EXPO_TV=1 expo start",
     "android": "EXPO_TV=1 expo run:android",
     "ios": "EXPO_TV=1 expo run:ios",
     "web": "expo start --web",
