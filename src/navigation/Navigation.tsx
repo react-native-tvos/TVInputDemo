@@ -5,9 +5,9 @@
 
 import {NavigationContainer} from '@react-navigation/native';
 import {
-  createStackNavigator,
-  StackNavigationOptions,
-} from '@react-navigation/stack';
+  createNativeStackNavigator as createStackNavigator,
+  NativeStackNavigationOptions as StackNavigationOptions,
+} from '@react-navigation/native-stack';
 import React from 'react';
 import {
   BackHandler,
@@ -178,18 +178,18 @@ const Header = (props: {
   );
 };
 const Navigation = (): any => {
-  const {colors, dark} = useTVTheme();
+  const {colors, dark, fonts} = useTVTheme();
 
   const homeHeaderOptions: StackNavigationOptions = {
     headerShown: true,
     title: 'React Native TV demo',
     header: () => <Header title="React Native TV demo" />,
-    headerMode: 'float',
     headerTransparent: true,
   };
 
   const navigationTheme = {
     dark,
+    fonts: fonts as any,
     colors: {
       primary: colors.primary,
       background: colors.background,
@@ -202,7 +202,7 @@ const Navigation = (): any => {
 
   return (
     <NavigationContainer theme={navigationTheme}>
-      <Stack.Navigator>
+      <Stack.Navigator id="main">
         <Stack.Screen
           name="Home"
           component={HomeScreen}
