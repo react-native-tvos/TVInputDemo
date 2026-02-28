@@ -20,7 +20,7 @@ This project uses the Expo SDK, as described in the Expo guide ["Build Expo apps
 - Navigation with [React Navigation](https://reactnavigation.org/)
 - Animation with [React Native Reanimated](https://docs.swmansion.com/react-native-reanimated/)
 - Material design components from [React Native Paper](https://callstack.github.io/react-native-paper/)
-- Video demo using the [Video component](https://docs.expo.dev/versions/latest/sdk/video/) from the `expo-av` package
+- Video demo using the [Video component](https://docs.expo.dev/versions/latest/sdk/video/) from the `expo-video` package
 
 ### Getting started
 
@@ -33,19 +33,6 @@ yarn prebuild # Clean and generate native projects
 yarn ios # Start app in simulator for Apple TV
 yarn android # Start app for Android TV, a TV emulator should already be running
 ```
-
-### Fabric (bridgeless) enabled by default
-
-- In `app.json`, `newArchEnabled` is set to `true` for both platforms in the `expo-build-properties` plugin properties
-- To run the app without Fabric:
-  - Change the value of `newArchEnabled` to false
-  - Rerun `yarn prebuild` to regenerate the native files
-
-
-### Known issues
-
-- Apple TV simulator issues (these will not occur when building for real devices, and seem to be actual bugs in the simulator):
-  - Video will pause after a few seconds if full screen video is selected in the video example
 
 ### Apple TV screenshots (light theme)
 
