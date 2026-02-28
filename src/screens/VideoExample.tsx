@@ -1,14 +1,9 @@
 /*
- * Demo of react-native-video usage for Apple TV and Android TV
+ * Demo of expo-video usage for Apple TV and Android TV
  */
 
-import {
-  Video,
-  ResizeMode,
-  AVPlaybackStatus,
-  VideoFullscreenUpdate,
-} from 'expo-av';
-import React from 'react';
+import {useVideoPlayer, VideoPlayerStatus, VideoView} from 'expo-video';
+import React, {useEffect, useRef, useState} from 'react';
 import {Platform, StyleSheet, View, useTVEventHandler} from 'react-native';
 
 import {
@@ -17,32 +12,60 @@ import {
   SectionContainer,
 } from '../common/StyledComponents';
 import useNavigationFocus from '../navigation/useNavigationFocus';
+import {useEventListener} from 'expo';
 
-type Status = Partial<AVPlaybackStatus> & {
-  isPlaying?: boolean;
-  uri?: string;
-  rate?: number;
-  positionMillis?: number;
-  playableDurationMillis?: number;
-};
+const videoSource = require('../../assets/bach-handel-corelli.mp4');
 
 const VideoExample = ({navigation}: {navigation: any}) => {
-  const video = React.useRef<Video>();
+  const videoViewRef = React.useRef<VideoView>(null);
 
-  const [status, setStatus] = React.useState<Status>({
-    isPlaying: false,
+  const [fractionComplete, setFractionComplete] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [videoStatus, setVideoStatus] = useState<VideoPlayerStatus>('idle');
+
+  const fractionCompleteFromPosition = (
+    position: number | undefined,
+    duration: number | undefined,
+  ) => {
+    return duration !== undefined ? (position ?? 0) / duration : 0;
+  };
+
+  const player = useVideoPlayer(videoSource, player => {
+    setVideoStatus(player.status);
   });
-  const [isFullScreen, setIsFullScreen] = React.useState(false);
 
-  const progress =
-    status.playableDurationMillis !== undefined &&
-    status.positionMillis !== undefined
-      ? status.positionMillis / status.playableDurationMillis
-      : 0;
+  useEventListener(player, 'statusChange', payload => {
+    setVideoStatus(payload.status);
+    console.log(`video status = ${payload.status}`);
+  });
+
+  useEffect(() => {
+    if (player.playing) {
+      setIsPlaying(true);
+    } else {
+      setIsPlaying(false);
+    }
+  }, [player.playing]);
 
   const [hasNavigationFocus, setHasNavigationFocus] = React.useState(false);
 
-  useNavigationFocus(navigation, setHasNavigationFocus);
+  useNavigationFocus(navigation, focus => {
+    console.log(`isFocused: ${focus}`);
+    setHasNavigationFocus(focus);
+  });
+
+  useInterval(() => {
+    setFractionComplete(
+      fractionCompleteFromPosition(player.currentTime, player.duration),
+    );
+  }, 1000);
+
+  useEffect(() => {
+    if (videoStatus === 'readyToPlay') {
+      // Autoplay on start
+      //      player.play();
+    }
+  }, [videoStatus]);
 
   useTVEventHandler(evt => {
     if (evt && evt.eventType === 'playPause') {
@@ -50,55 +73,39 @@ const VideoExample = ({navigation}: {navigation: any}) => {
     }
   });
 
-  const playPause = () =>
-    status?.isPlaying ?? false
-      ? video.current.pauseAsync()
-      : video.current.playAsync();
-
-  const adjustVolume = (volume: number) => {
-    video.current.setVolumeAsync(volume);
+  const playPause = () => {
+    if (isPlaying) {
+      player.pause();
+    } else {
+      player.play();
+    }
   };
 
   return (
     <SectionContainer title="Video example">
       <View style={styles.videoContainer}>
         <View>
-          <Video
-            ref={video}
-            style={isFullScreen ? {display: 'none'} : styles.video}
-            source={require('../../assets/bach-handel-corelli.mp4')}
-            resizeMode={ResizeMode.CONTAIN}
-            isLooping
-            useNativeControls={false}
-            onPlaybackStatusUpdate={newStatus => {
-              setStatus(_status => newStatus);
-            }}
-            onFullscreenUpdate={event => {
-              if (
-                event.fullscreenUpdate ===
-                VideoFullscreenUpdate.PLAYER_WILL_PRESENT
-              ) {
-                setIsFullScreen(true);
-              }
-              if (
-                event.fullscreenUpdate ===
-                VideoFullscreenUpdate.PLAYER_DID_DISMISS
-              ) {
-                setIsFullScreen(false);
-              }
+          <VideoView
+            ref={videoViewRef}
+            style={styles.video}
+            player={player}
+            contentFit="contain"
+            nativeControls
+            fullscreenOptions={{
+              enable: true,
             }}
           />
-          <ProgressBar fractionComplete={progress} />
+          <ProgressBar fractionComplete={fractionComplete} />
         </View>
         <View style={styles.generalControls}>
           <Button hasTVPreferredFocus={hasNavigationFocus} onPress={playPause}>
-            {status.isPlaying ? 'Pause' : 'Play'}
+            {isPlaying ? 'Pause' : 'Play'}
           </Button>
-          <Button onPress={() => video.current.replayAsync()}>Rewind</Button>
-          <Button onPress={() => adjustVolume(0.0)}>No volume</Button>
-          <Button onPress={() => adjustVolume(0.5)}>Half volume</Button>
-          <Button onPress={() => adjustVolume(1.0)}>Full volume</Button>
-          <Button onPress={() => video.current.presentFullscreenPlayer()}>
+          <Button onPress={() => player.replay()}>Rewind</Button>
+          <Button onPress={() => (player.volume = 0.0)}>No volume</Button>
+          <Button onPress={() => (player.volume = 0.5)}>Half volume</Button>
+          <Button onPress={() => (player.volume = 1.0)}>Full volume</Button>
+          <Button onPress={() => videoViewRef.current.enterFullscreen()}>
             Full screen
           </Button>
         </View>
@@ -121,3 +128,22 @@ const styles = StyleSheet.create({
   },
   generalControls: {},
 });
+
+const useInterval: (callback: () => void, interval: number) => void = (
+  callback,
+  interval,
+) => {
+  const callbackRef = useRef<typeof callback>(null);
+  useEffect(() => {
+    callbackRef.current = callback;
+  }, [callback]);
+
+  // Set up the interval.
+  useEffect(() => {
+    function cb() {
+      callbackRef.current && callbackRef.current();
+    }
+    const id = setInterval(cb, interval);
+    return () => clearInterval(id);
+  }, [interval]);
+};
