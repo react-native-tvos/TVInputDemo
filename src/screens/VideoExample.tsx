@@ -2,9 +2,8 @@
  * Demo of expo-video usage for Apple TV and Android TV
  */
 
-import {useEvent, useEventListener} from 'expo';
-import {useVideoPlayer, VideoView} from 'expo-video';
-import React from 'react';
+import {useVideoPlayer, VideoPlayerStatus, VideoView} from 'expo-video';
+import React, {useEffect, useRef, useState} from 'react';
 import {Platform, StyleSheet, View, useTVEventHandler} from 'react-native';
 
 import {
@@ -13,40 +12,60 @@ import {
   SectionContainer,
 } from '../common/StyledComponents';
 import useNavigationFocus from '../navigation/useNavigationFocus';
+import {useEventListener} from 'expo';
 
 const videoSource = require('../../assets/bach-handel-corelli.mp4');
 
 const VideoExample = ({navigation}: {navigation: any}) => {
   const videoViewRef = React.useRef<VideoView>(null);
 
-  const player = useVideoPlayer(videoSource, p => {
-    p.loop = true;
+  const [fractionComplete, setFractionComplete] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [videoStatus, setVideoStatus] = useState<VideoPlayerStatus>('idle');
+
+  const fractionCompleteFromPosition = (
+    position: number | undefined,
+    duration: number | undefined,
+  ) => {
+    return duration !== undefined ? (position ?? 0) / duration : 0;
+  };
+
+  const player = useVideoPlayer(videoSource, player => {
+    setVideoStatus(player.status);
   });
 
-  const {isPlaying} = useEvent(player, 'playingChange', {
-    isPlaying: player.playing,
+  useEventListener(player, 'statusChange', payload => {
+    setVideoStatus(payload.status);
+    console.log(`video status = ${payload.status}`);
   });
 
-  const [currentTime, setCurrentTime] = React.useState(0);
-  const [duration, setDuration] = React.useState(0);
-
-  useEventListener(player, 'timeUpdate', ({currentTime: ct}) => {
-    setCurrentTime(ct);
-  });
-
-  useEventListener(player, 'statusChange', () => {
-    if (player.duration > 0) {
-      setDuration(player.duration);
+  useEffect(() => {
+    if (player.playing) {
+      setIsPlaying(true);
+    } else {
+      setIsPlaying(false);
     }
-  });
-
-  const [isFullScreen, setIsFullScreen] = React.useState(false);
-
-  const progress = duration > 0 ? currentTime / duration : 0;
+  }, [player.playing]);
 
   const [hasNavigationFocus, setHasNavigationFocus] = React.useState(false);
 
-  useNavigationFocus(navigation, setHasNavigationFocus);
+  useNavigationFocus(navigation, focus => {
+    console.log(`isFocused: ${focus}`);
+    setHasNavigationFocus(focus);
+  });
+
+  useInterval(() => {
+    setFractionComplete(
+      fractionCompleteFromPosition(player.currentTime, player.duration),
+    );
+  }, 1000);
+
+  useEffect(() => {
+    if (videoStatus === 'readyToPlay') {
+      // Autoplay on start
+      //      player.play();
+    }
+  }, [videoStatus]);
 
   useTVEventHandler(evt => {
     if (evt && evt.eventType === 'playPause') {
@@ -68,14 +87,15 @@ const VideoExample = ({navigation}: {navigation: any}) => {
         <View>
           <VideoView
             ref={videoViewRef}
-            style={isFullScreen ? {display: 'none'} : styles.video}
+            style={styles.video}
             player={player}
             contentFit="contain"
-            nativeControls={false}
-            onFullscreenEnter={() => setIsFullScreen(true)}
-            onFullscreenExit={() => setIsFullScreen(false)}
+            nativeControls
+            fullscreenOptions={{
+              enable: true,
+            }}
           />
-          <ProgressBar fractionComplete={progress} />
+          <ProgressBar fractionComplete={fractionComplete} />
         </View>
         <View style={styles.generalControls}>
           <Button hasTVPreferredFocus={hasNavigationFocus} onPress={playPause}>
@@ -85,8 +105,7 @@ const VideoExample = ({navigation}: {navigation: any}) => {
           <Button onPress={() => (player.volume = 0.0)}>No volume</Button>
           <Button onPress={() => (player.volume = 0.5)}>Half volume</Button>
           <Button onPress={() => (player.volume = 1.0)}>Full volume</Button>
-          <Button
-            onPress={() => videoViewRef.current?.enterFullscreen()}>
+          <Button onPress={() => videoViewRef.current.enterFullscreen()}>
             Full screen
           </Button>
         </View>
@@ -109,3 +128,22 @@ const styles = StyleSheet.create({
   },
   generalControls: {},
 });
+
+const useInterval: (callback: () => void, interval: number) => void = (
+  callback,
+  interval,
+) => {
+  const callbackRef = useRef<typeof callback>(null);
+  useEffect(() => {
+    callbackRef.current = callback;
+  }, [callback]);
+
+  // Set up the interval.
+  useEffect(() => {
+    function cb() {
+      callbackRef.current && callbackRef.current();
+    }
+    const id = setInterval(cb, interval);
+    return () => clearInterval(id);
+  }, [interval]);
+};
